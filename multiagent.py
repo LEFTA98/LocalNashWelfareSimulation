@@ -136,8 +136,7 @@ class Simulation:
                 good_mtx = np.array([good.values for good in self.goods])
                 temp = good_mtx * self.alloc.mtx.T
                 print(temp)
-        
-        print(ratios)        
+            
         if show_plot:
             x = np.arange(len(ratios))
             bound = self.get_lower_bound_improvement() * np.ones(len(ratios))
@@ -160,6 +159,7 @@ class Simulation:
         while not unchanged:
             num_steps += 1
             curr_change_candidate = self.alloc
+            to_add = 1
             for i in range(1,m+1):
                 for agent_1 in range(1, n+1):
                     for agent_2 in range(1, n+1):
@@ -171,14 +171,21 @@ class Simulation:
                             best_prod = self.get_agent_value(agent_1, curr_change_candidate)*self.get_agent_value(agent_2, curr_change_candidate)
                             new_prod = self.get_agent_value(agent_1, candidate)*self.get_agent_value(agent_2, candidate)
                             
-                            if old_prod < new_prod and (new_prod < best_prod or best_prod == old_prod):
+                            if old_prod < new_prod and ((new_prod < best_prod) or (best_prod == old_prod)):
                                 curr_change_candidate = candidate
+                                to_add = np.exp(np.log(new_prod)-np.log(old_prod))
 #                                
             if curr_change_candidate == self.alloc:
                 unchanged = True
-#           
-            ratios.append(self.get_nsw(curr_change_candidate)/self.get_nsw())
+                
             self.alloc = curr_change_candidate
+            
+            if show_plot:
+                if self.get_nsw() != 0:
+                    ratios.append(to_add)
+                else:
+                    #Numerical stability if NSW is not 0
+                    ratios.append(self.get_nsw(curr_change_candidate)/self.get_nsw())
                 
             if show_step:
                 print("number of steps:", num_steps)
@@ -208,9 +215,9 @@ if __name__ == "__main__":
 #    sim.min_NSW(True, True)
     
     #Discrete Uniform Random example
-    NUM_PLAYERS = 2
+    NUM_PLAYERS = 6
     NUM_GOODS = 200
-    MAX_VALUE = 20
+    MAX_VALUE = 15
     goods = []
     for j in range(NUM_GOODS):
         goods.append(Good(j, np.random.randint(1, MAX_VALUE, size=NUM_PLAYERS)))
