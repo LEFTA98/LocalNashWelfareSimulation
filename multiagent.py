@@ -185,8 +185,7 @@ class Simulation:
                 good_mtx = np.array([good.values for good in self.goods])
                 temp = good_mtx * self.alloc.mtx.T
                 print(temp)
-        
-        print(ratios)        
+          
         if show_plot:
             x = np.arange(len(ratios))
             bound = self.get_lower_bound_improvement() * np.ones(len(ratios))
@@ -194,16 +193,38 @@ class Simulation:
             
                 
 if __name__ == "__main__":
-    good1 = Good(1, np.array([1,1,1]))
-    good2 = Good(1, np.array([2,2,2]))
-    good3 = Good(1, np.array([3,3,3]))
-    good4 = Good(1, np.array([4,4,4]))
-    good5 = Good(1, np.array([5,5,5]))
+    #Toy example
+#    good1 = Good(1, np.array([1,1,1]))
+#    good2 = Good(2, np.array([2,2,2]))
+#    good3 = Good(3, np.array([3,3,3]))
+#    good4 = Good(4, np.array([4,4,4]))
+#    good5 = Good(5, np.array([5,5,5]))
+#    
+#    goods = [good1, good2, good3, good4, good5]
+#    mtx = np.array([[1,1,1,1,1],[0,0,0,0,0],[0,0,0,0,0]])
+#    alloc = Allocation(mtx)
+#    
+#    sim = Simulation(goods, alloc)
+#    sim.min_NSW(True, True)
     
-    goods = [good1, good2, good3, good4, good5]
-    mtx = np.array([[1,1,1,1,1],[0,0,0,0,0],[0,0,0,0,0]])
-    alloc = Allocation(mtx)
+    #Discrete Uniform Random example
+    NUM_PLAYERS = 2
+    NUM_GOODS = 200
+    MAX_VALUE = 20
+    goods = []
+    for j in range(NUM_GOODS):
+        goods.append(Good(j, np.random.randint(1, MAX_VALUE, size=NUM_PLAYERS)))
+        
+    mtx = []
+    for i in range(1,NUM_PLAYERS+1):
+        vec = np.zeros(NUM_GOODS)
+        indices = np.arange(1,NUM_GOODS+1)
+        vec = np.where((indices <= i/NUM_PLAYERS*NUM_GOODS) & ((i-1)/NUM_PLAYERS*NUM_GOODS < indices), 1, 0)
+        mtx.append(vec)
+        
+    alloc = Allocation(np.array(mtx))
     
     sim = Simulation(goods, alloc)
-    sim.min_NSW(True, True)
+    sim.min_NSW(False, True)
+
             
