@@ -191,16 +191,16 @@ class ExchangeSimulation:
             item_lst.append(min_ret[1])
             min_ret = self.find_min_improvement()
         return ratio, item_lst
-
-
-game = ExchangeSimulation(400, max_value_per_item=90)
-k = max(sum(game.agent1.get_items_value_table()), sum(game.agent2.get_items_value_table()))
-ratio, item_lst = game.min_exchange()
-factor = [1 + 1 / k ** 2] * len(ratio)
-x = np.arange(len(ratio))
-fig, ax = plt.subplots()
-ax.plot(x, ratio, x, factor)
-# plt.scatter(x, ratio, marker="x")
-
-print("Num of goods {} {} after exchange.".format(game.agent1.get_num_items(), game.agent2.get_num_items()))
-plt.show()
+    
+if __name__ == "__main__":
+    game = ExchangeSimulation(400, max_value_per_item=90)
+    k = max(sum(game.agent1.get_items_value_table()), sum(game.agent2.get_items_value_table()))
+    ratio, item_lst = game.min_exchange()
+    factor = [1 + 1 / k ** 2] * len(ratio)
+    x = np.arange(len(ratio))
+    fig, ax = plt.subplots()
+    ax.plot(x, ratio, x, factor)
+    # plt.scatter(x, ratio, marker="x")
+    
+    print("Num of goods {} {} after exchange.".format(game.agent1.get_num_items(), game.agent2.get_num_items()))
+    plt.show()
