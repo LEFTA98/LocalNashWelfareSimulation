@@ -124,12 +124,20 @@ class Simulation:
                             
                             if max(old_prod, best_prod) < new_prod:
                                 curr_change_candidate = candidate
+                                to_add = np.exp(np.log(new_prod)-np.log(old_prod))
 #                                
             if curr_change_candidate == self.alloc:
                 unchanged = True
 #           
-            ratios.append(self.get_nsw(curr_change_candidate)/self.get_nsw())
             self.alloc = curr_change_candidate
+            
+            if show_plot:
+                if self.get_nsw() != 0:
+                    ratios.append(to_add)
+                else:
+                    #Numerical stability if NSW is not 0
+                    ratios.append(self.get_nsw(curr_change_candidate)/self.get_nsw())
+                    
                 
             if show_step:
                 print("number of steps:", num_steps)
