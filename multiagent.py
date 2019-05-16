@@ -58,7 +58,7 @@ class Simulation:
         """
         self.goods = goods
         self.alloc = alloc
-        self.good_mtx = np.array([good.values for good in self.goods])
+        self.good_mtx = np.array([good.values for good in self.goods], dtype=object)
         
     def get_nsw(self, alloc=None):
         """
@@ -71,7 +71,7 @@ class Simulation:
             
         temp = self.good_mtx * alloc.mtx.T
         temp = np.sum(temp,axis=0)
-        temp = [item for item in temp if item != 0]
+        temp = np.array([item for item in temp if item != 0], dtype=object)
         return np.product(temp)
     
     def get_agent_value(self, agent, alloc=None):
@@ -124,14 +124,17 @@ class Simulation:
                             
                             if max(old_prod, best_prod) < new_prod:
                                 curr_change_candidate = candidate
-                                to_add = np.exp(np.log(new_prod)-np.log(old_prod))
+                                if old_prod == 0:
+                                    to_add = 0
+                                else:
+                                    to_add = np.exp(np.log(new_prod)-np.log(old_prod))
 #                                
             if curr_change_candidate == self.alloc:
                 unchanged = True
 #           
             self.alloc = curr_change_candidate
             
-            if show_plot:
+            if show_plot and to_add != 0:
                 if self.get_nsw() != 0:
                     ratios.append(to_add)
                 else:
@@ -149,6 +152,7 @@ class Simulation:
             x = np.arange(len(ratios))
             bound = self.get_lower_bound_improvement() * np.ones(len(ratios))
             plt.plot(x, ratios, x, bound)
+            plt.show()
             
     def min_NSW(self, show_step=False, show_plot=False):
         """
@@ -181,14 +185,17 @@ class Simulation:
                             
                             if old_prod < new_prod and ((new_prod < best_prod) or (best_prod == old_prod)):
                                 curr_change_candidate = candidate
-                                to_add = np.exp(np.log(new_prod)-np.log(old_prod))
+                                if old_prod == 0:
+                                    to_add = 0
+                                else:
+                                    to_add = np.exp(np.log(new_prod)-np.log(old_prod))
 #                                
             if curr_change_candidate == self.alloc:
                 unchanged = True
                 
             self.alloc = curr_change_candidate
             
-            if show_plot:
+            if show_plot and old_prod != 0:
                 if self.get_nsw() != 0:
                     ratios.append(to_add)
                 else:
@@ -205,7 +212,7 @@ class Simulation:
             x = np.arange(len(ratios))
             bound = self.get_lower_bound_improvement() * np.ones(len(ratios))
             plt.plot(x, ratios, x, bound)
-            
+            plt.show()
                 
 if __name__ == "__main__":
     #Toy example
@@ -223,23 +230,28 @@ if __name__ == "__main__":
 #    sim.min_NSW(True, True)
     
     #Discrete Uniform Random example
-    NUM_PLAYERS = 6
-    NUM_GOODS = 200
-    MAX_VALUE = 15
+    NUM_PLAYERS = 2
+    NUM_GOODS = 25
+    # MAX_VALUE = 15
     goods = []
     for j in range(NUM_GOODS):
-        goods.append(Good(j, np.random.randint(1, MAX_VALUE, size=NUM_PLAYERS)))
+        goods.append(Good(j, [2**j, 2**j]))
         
     mtx = []
-    for i in range(1,NUM_PLAYERS+1):
-        vec = np.zeros(NUM_GOODS)
-        indices = np.arange(1,NUM_GOODS+1)
-        vec = np.where((indices <= i/NUM_PLAYERS*NUM_GOODS) & ((i-1)/NUM_PLAYERS*NUM_GOODS < indices), 1, 0)
-        mtx.append(vec)
+#     for i in range(1,NUM_PLAYERS+1):
+#         vec = np.zeros(NUM_GOODS)
+#         indices = np.arange(1,NUM_GOODS+1)
+#         vec = np.where((indices <= i/NUM_PLAYERS*NUM_GOODS) & ((i-1)/NUM_PLAYERS*NUM_GOODS < indices), 1, 0)
+#         mtx.append(vec)
+
+    mtx.append(np.ones(NUM_GOODS))
+    mtx.append(np.zeros(NUM_GOODS))
+
+    print(mtx)
         
     alloc = Allocation(np.array(mtx))
     
     sim = Simulation(goods, alloc)
-    sim.min_NSW(False, True)
+    sim.min_NSW(True, True)
 
             
