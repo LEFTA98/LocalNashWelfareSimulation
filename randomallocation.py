@@ -172,10 +172,10 @@ if __name__ == "__main__":
     NUM_GOODS = 10
     final_allocs = []
     num_steps_list = []
-    for i in range(5000):
+    for i in range(100000):
         goods = []
         for j in range(NUM_GOODS):
-            goods.append(Good(j, [np.random.randint(1,1001), np.random.randint(1,1001)]))
+            goods.append(Good(j, [np.random.randint(1,101), np.random.randint(1,101)]))
             
         mtx = []
         for i in range(1,NUM_PLAYERS+1):
@@ -190,8 +190,10 @@ if __name__ == "__main__":
         final_allocs.append(alloc)
         num_steps_list.append(num_steps)
 
-    print(num_steps_list)
-    print(max(num_steps_list))
+    num_steps_list = np.array(num_steps_list)
+    print('max', max(num_steps_list), 'median', np.median(num_steps_list), 'mean', np.mean(num_steps_list))
+    plt.hist(num_steps_list, align='mid', bins=range(min(num_steps_list), max(num_steps_list)+1))
+    plt.show()
 
     # goods = []
     # for j in range(NUM_GOODS):
